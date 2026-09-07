@@ -18,8 +18,32 @@ python -m http.server 8099
 # then open http://localhost:8099/
 ```
 
-No build step, no dependencies, no bundler. Deploy by dropping the folder on any
-static host (Netlify, Cloudflare Pages, GitHub Pages).
+No build step, no dependencies, no bundler.
+
+## Deploy (Vercel)
+
+There is deliberately **no `package.json`** — Vercel must detect no framework and
+serve the repo root as static files. Adding one would trigger a build step this
+site does not need.
+
+Import once and every push to `main` deploys automatically:
+
+1. <https://vercel.com/new> → **Import Git Repository** → `Bilal-363/Ny-medcare`
+2. Framework Preset: **Other**. Leave Build Command empty, Output Directory as
+   the root. `vercel.json` supplies clean URLs, caching and security headers.
+3. **Deploy.**
+
+Or from the CLI, from this folder:
+
+```bash
+npm i -g vercel
+vercel login       # interactive
+vercel --prod
+```
+
+Note `index.html` still carries `<meta name="robots" content="noindex, nofollow">`
+(inherited from the source site), so the deploy will not be indexed until that is
+removed — which is usually what you want for a client preview.
 
 ## Structure
 
