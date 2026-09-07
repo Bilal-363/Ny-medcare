@@ -26,7 +26,7 @@ export function PulseLine(stage, {
   beats = 8,           // ~4 beats inside the visible frame at the hero keyframe
   samples = 260,
   amp = 0.68,
-  y = -0.55,           // just under the lead paragraph, above the rating row
+  y = -1.85,           // low band: clear of the headline and lead copy
 } = {}) {
   const pts = [];
   for (let i = 0; i < samples; i++) {
@@ -41,9 +41,9 @@ export function PulseLine(stage, {
   const hiGeo   = new THREE.TubeGeometry(curve, 620, 0.040, 8, false);
 
   const baseMat = new THREE.MeshBasicMaterial({
-    color: 0x141210, transparent: true, opacity: 0.24, depthWrite: false });
+    color: 0x141210, transparent: true, opacity: 0.13, depthWrite: false });
   const hiMat = new THREE.MeshBasicMaterial({
-    color: 0xc41c1c, transparent: true, opacity: 0.85, depthWrite: false });
+    color: 0xc41c1c, transparent: true, opacity: 0.55, depthWrite: false });
 
   const base = new THREE.Mesh(baseGeo, baseMat);
   const hi   = new THREE.Mesh(hiGeo, hiMat);
@@ -72,15 +72,15 @@ export function PulseLine(stage, {
       /* draw-on-load: the trace writes itself once, left to right */
       const x = t / DRAW_S;
       hiGeo.setDrawRange(0, Math.round(TOTAL * (x * x * (3 - 2 * x))));
-      hiMat.opacity = 0.85;
-      baseMat.opacity = 0.20;
+      hiMat.opacity = 0.55;
+      baseMat.opacity = 0.13;
     } else {
       /* travelling QRS window */
       const ph = ((t - DRAW_S) % PERIOD) / PERIOD;
       const start = Math.round(ph * TOTAL);
       hiGeo.setDrawRange(start, Math.min(WIN, TOTAL - start));
       /* the ink line lifts as the spike passes the centre */
-      baseMat.opacity = 0.24 + 0.07 * gauss(ph, 0.5, 0.10);
+      baseMat.opacity = 0.13 + 0.04 * gauss(ph, 0.5, 0.10);
     }
 
     /* pointer parallax — small, clinical */
@@ -90,8 +90,8 @@ export function PulseLine(stage, {
   };
 
   const thin = () => {
-    baseMat.opacity = 0.18;
-    hiMat.opacity = 0.70;
+    baseMat.opacity = 0.10;
+    hiMat.opacity = 0.45;
   };
 
   return { object, tick, thin };

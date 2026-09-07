@@ -160,15 +160,12 @@ em{font-style:normal;color:var(--accent)}
   78%{transform:scale(1.65);opacity:.55}84%{transform:scale(1);opacity:1}
   90%{transform:scale(1.35);opacity:.7}}
 .hero h1{margin:0 0 calc(22 * var(--u))}
-/* the one accent device: solid accent + a drawn ECG underline. No gradient text. */
-.hero h1 em{position:relative;white-space:nowrap}
-.hero h1 em svg{position:absolute;left:0;right:0;bottom:calc(1 * var(--h));
-  width:100%;height:calc(11 * var(--h));overflow:visible;color:var(--accent)}
-.hero h1 em svg path{fill:none;stroke:currentColor;stroke-width:2.4;
-  stroke-linecap:round;stroke-linejoin:round;
-  stroke-dasharray:760;stroke-dashoffset:760}
-html.js .hero h1 em svg path{animation:drawEcg 1.5s .55s cubic-bezier(.22,1,.36,1) forwards}
-@keyframes drawEcg{to{stroke-dashoffset:0}}
+/* The accent phrase carries the emphasis on its own — solid crimson, no
+   gradient fill, and NO nowrap: nowrap made the phrase refuse to break, so it
+   ran 127px past its own grid column and collided with the hero photograph.
+   The drawn ECG underline went with it — its QRS spikes overshot into the line
+   below and cut through "Guided Start to Finish". The scene carries the ECG. */
+.hero h1 em{color:var(--accent)}
 .hero .lead{margin-bottom:calc(26 * var(--u));max-width:calc(560 * var(--h))}
 .hero-rating{display:flex;align-items:center;gap:calc(11 * var(--h));
   margin-bottom:calc(22 * var(--u));font-size:calc(15 * var(--h));color:var(--muted)}
@@ -232,8 +229,8 @@ html.no-gl .hero .fallback::after{content:"";position:absolute;inset:auto 0 12% 
   background:repeating-linear-gradient(0deg,var(--line-2) 0 1px,transparent 1px 54px),
              repeating-linear-gradient(90deg,var(--line-2) 0 1px,transparent 1px 54px);
   mask-image:linear-gradient(to top,#000,transparent 78%)}
-.hero .fallback svg{position:absolute;left:0;right:0;top:42%;width:100%;
-  height:calc(150 * var(--u));color:var(--accent);opacity:.45}
+.hero .fallback svg{position:absolute;left:0;right:0;top:70%;width:100%;
+  height:calc(130 * var(--u));color:var(--accent);opacity:.26}
 .hero .fallback svg path{fill:none;stroke:currentColor;stroke-width:1.6}
 
 /* ============================================================ 5 · STATS */
@@ -571,11 +568,6 @@ svg.i.solid{fill:currentColor;stroke:none}
   .sec{padding:calc(96 * var(--u)) 0}
 }
 @media (max-width:1180px){
-  /* The nowrap that keeps the accent phrase on one line at desktop is exactly
-     what forces horizontal overflow on a narrow viewport. Let it wrap, and drop
-     the drawn underline, which only makes sense across a single unbroken line. */
-  .hero h1 em{white-space:normal}
-  .hero h1 em svg{display:none}
   .hero-in{grid-template-columns:1fr;gap:calc(48 * var(--u))}
   .hero-copy{max-width:calc(720 * var(--h))}
   .hero-badge{left:auto;right:calc(16 * var(--h))}
@@ -652,7 +644,6 @@ svg.i.solid{fill:currentColor;stroke:none}
   *,*::before,*::after{animation-duration:.001s!important;
     transition-duration:.001s!important}
   [data-reveal],html.js [data-reveal]{opacity:1;transform:none}
-  .hero h1 em svg path{stroke-dashoffset:0!important;animation:none!important}
   .hero-eyebrow .dot{animation:none}
   .step .step-n{background:var(--accent);border-color:var(--accent);color:#fff}
   canvas#gl{display:none}

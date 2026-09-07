@@ -139,14 +139,23 @@ Type scale (`--h` unit, reference canvas 1512×1024):
 | eyebrow | `calc(11.5 * var(--h))` | 1 | 600 | Inter | .16em, uppercase |
 | stat numeral | `calc(52 * var(--h))` | 1 | 400 | Instrument Serif | −.02em, `tabular-nums` |
 
-`em` inside an h1 = `color:var(--accent)` **plus a drawn ECG underline** —
-never a gradient fill. The underline is `position:absolute; bottom:calc(1 *
-var(--h)); height:calc(11 * var(--h)); overflow:visible`, so its QRS spike
-overshoots into the accent line's own descender space. **h1 leading must stay
-≥ 1.06** or the underline lands on top of the next line. Below 1180px the
-underline is hidden and `white-space:nowrap` is lifted from the `em` — nowrap
-on a 30-character phrase is what pushes a 390px viewport into horizontal
-overflow.
+`em` inside an h1 = `color:var(--accent)`, solid — never a gradient fill, and
+**never `white-space:nowrap`**.
+
+Two decorations were removed here after review, and both failures are worth
+recording because they look like styling choices and behave like bugs:
+
+1. **`white-space:nowrap` on the accent phrase.** It kept "USCIS Immigration
+   Medical Exam" on one line at desktop, which meant the phrase refused to
+   break and ran **127px outside its own 550px grid column**, sliding over the
+   hero photograph. Measured at 1241px wide: `h1` box `55..605`, `em` box
+   `55..732`. Let it wrap and the `em` ends at `544`, leaving a 113px gap to
+   the photo.
+2. **The drawn ECG underline.** Absolutely positioned under an inline `em` that
+   is followed by more text, with `overflow:visible` so the QRS spike could
+   overshoot — the spike cut straight through "Guided Start to Finish" on the
+   next line. There is no offset that survives every wrap point; the scene
+   carries the ECG instead.
 
 ---
 
@@ -285,10 +294,12 @@ real failure caught in review, not a precaution:
   `n = round(total · smoothstep(0, 1, min(1, t / 1.4)))`, `t` in seconds from
   first tick. Runs once.
 - **Travelling QRS** — after the draw completes, a window of
-  `total * 0.16` indices sweeps `0 → total` every **2.4s**; inside the window
-  `opacity = .85`, outside `.34`. Implemented as two draw ranges per frame
-  (base tube always full at `.20`).
-- Ink tube `opacity` lifts `.20 → .26` on the beat, easing back over `.45s`.
+  `total * 0.16` indices sweeps `0 → total` every **2.4s**.
+- **Opacity is deliberately low: ink `.13`, crimson `.55`,** and the group sits
+  at `y = -1.85` — a low band under the copy. An earlier pass ran the trace at
+  `y = -0.55` at ink `.24`, which put a grey waveform straight through the
+  serif headline and muddied it. On a light page the scene must stay a whisper
+  behind type, not a line across it.
 - Group `rotation.z = state.my * 0.035`, `position.x = state.mx * 0.30`.
 
 **Camera keyframes** (C1 — straight push-in, no orbit):
@@ -308,7 +319,7 @@ canvas is invisible, so no scene fights the white content sections.
 
 **Three tiers**: (1) full WebGL as above · (2) `html.no-gl` → a CSS-only
 `.fallback` in the hero drawing the same 4-beat ECG as an **inline SVG**
-`stroke-dasharray` path in `--accent` at `.5` opacity, plus the hairline grid
+`stroke-dasharray` path in `--accent` at `.26` opacity, in the lower band, plus the hairline grid
 as two `repeating-linear-gradient`s at `--line-2` · (3)
 `prefers-reduced-motion` → the SVG path fully drawn, static, no sweep.
 
