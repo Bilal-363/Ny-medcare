@@ -152,12 +152,36 @@ overflow.
 
 ## 4 · UNIT SYSTEM
 
-`--u:calc(100dvh / 1024)` · `--uw:calc(100vw / 1512)` ·
-`--h:clamp(var(--u), calc(var(--u)*.62 + var(--uw)*.38), calc(var(--u)*1.18))`.
+**This build overrides core.css's height-locked units.** The stock system
+(`--u:calc(100dvh / 1024)`) sizes type from viewport *height*, which is correct
+for a single-viewport cinematic frame and wrong for a long, content-dense page:
+in a 583px-tall window `--h` collapses to `.67` and body copy renders at ~11px.
+Type and vertical rhythm here scale with **width**, floored and capped:
 
-Four rules: **`--u`** for fixed position · **`--h`** for type ·
-**`--gutter`** (`clamp(20px,6.4vw,92px)`) for horizontal ·
-**raw px** for scroll timelines, never `vh`.
+```css
+--uw:calc(100vw / 1512);
+--u:clamp(.94px, var(--uw), 1.14px);
+--h:clamp(.94px, var(--uw), 1.16px);
+--gutter:clamp(20px, 4.4vw, 76px);
+```
+
+| viewport | `--h` | h1 | lead | body |
+|---|---|---|---|---|
+| 1241 × 582 (short laptop) | .94 (floored) | 62px | 18.3px | 16.5px |
+| 1475 × 926 | .975 | 65px | 19.2px | 17.2px |
+| 1883 × 982 | 1.16 (capped) | 90px | 22.6px | 20.3px |
+
+Four rules: **`--u`** for vertical rhythm · **`--h`** for type ·
+**`--gutter`** for horizontal · **raw px** for scroll timelines, never `vh`.
+
+Because site.css's `:root` now declares `--u`/`--h`, it outranks core.css's
+portrait block by source order — **site.css must re-assert
+`:root{--u:var(--m);--h:var(--m)}` inside its own `max-aspect-ratio:11/10`
+block** or phones inherit the desktop width scale.
+
+Short landscape windows tighten rhythm only, never type: at
+`max-height:760px` section padding drops 88→66 units, at `max-height:620px`
+88→54, so a full composition still fits per screen.
 
 Portrait/tablet override: `--m:min(calc(100vw / 430),1.32px)` at
 `max-aspect-ratio:11/10`, with `--u:var(--m); --h:var(--m)`; tablet band
@@ -439,6 +463,7 @@ booking panel carry `aspect-ratio`. CLS target < 0.1.
 
 | breakpoint | overrides |
 |---|---|
+| `max-height:760px` / `620px` (landscape) | vertical rhythm tightens only — type sizes are untouched |
 | `max-width:1500px` | `--nav-h:72px`; hero h1 `calc(66 * var(--h))`; h2 `calc(41 * var(--h))` |
 | `max-width:1100px` | `.topbar{display:none}`; `.links{display:none}`; `#burger{display:flex}`; hero → single column, photo below copy; S3 2×2 → 2×2 kept; S4/S6 → single column |
 | `max-aspect-ratio:11/10` | `--m` unit system; hero h1 `calc(40 * var(--m))`; `.actions{flex-direction:column;align-items:stretch}`; `canvas#gl{opacity:calc(var(--gl-op) * .5)}`; `.mobar{display:flex}` + `main{padding-bottom:calc(76 * var(--m))}`; header padded with `env(safe-area-inset-*)` |
